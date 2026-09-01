@@ -1,0 +1,26 @@
+name: Flyway Database Migration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flyway
+        uses: red-gate/setup-flyway@v1
+
+      - name: Run Flyway migration
+        run: |
+          flyway \
+            -url="${{ secrets.FLYWAY_URL }}" \
+            -user="${{ secrets.FLYWAY_USER }}" \
+            -password="${{ secrets.FLYWAY_PASSWORD }}" \
+            -locations="filesystem:sql/migrations" \
+            migrate
