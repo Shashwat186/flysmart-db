@@ -1,10 +1,12 @@
-name: Flyway Baseline
+name: Flyway Database Migration
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  baseline:
+  migrate:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,12 +16,11 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v1
 
-      - name: Baseline Aiven database
+      - name: Run Flyway migration
         run: |
           flyway \
             -url="${{ secrets.FLYWAY_URL }}" \
             -user="${{ secrets.FLYWAY_USER }}" \
             -password="${{ secrets.FLYWAY_PASSWORD }}" \
-            -baselineVersion=1 \
-            -baselineDescription="Existing FlySmart database" \
-            baseline
+            -locations="filesystem:sql/migrations" \
+            migrate
