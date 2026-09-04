@@ -1,13 +1,21 @@
 name: Flyway Database Migration
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select database environment"
+        required: true
+        type: choice
+        options:
+          - beta
+          - prod
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
+
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout
