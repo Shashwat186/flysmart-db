@@ -1,13 +1,13 @@
-name: Flyway Database Migration
+name: Flyway Production Migration
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
+
+    environment: prod
 
     steps:
       - name: Checkout
