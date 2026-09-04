@@ -24,6 +24,10 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v1
 
+      - name: Install MySQL plugin
+        run: |
+          flyway plugin install mysql
+
       - name: Run Flyway migration
         run: |
           flyway \
