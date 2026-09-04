@@ -1,31 +1,58 @@
 name: Flyway Database Migration
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Select database environment"
-        required: true
-        type: choice
-        options:
-          - beta
-          - prod
+  push:
+    branches:
+      - main
 
 jobs:
-  migrate:
+
+  # =========================
+  # BETA
+  # =========================
+  beta:
     runs-on: ubuntu-latest
 
-    environment: ${{ inputs.environment }}
+    environment: beta
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Flyway migration
-        uses: flyway/flyway-github-action@v1
-        with:
-          url: ${{ secrets.FLYWAY_URL }}
-          user: ${{ secrets.FLYWAY_USER }}
-          password: ${{ secrets.FLYWAY_PASSWORD }}
-          locations: filesystem:sql/migrations
-          command: migrate
+      - name: Setup Flyway
+        uses: red-gate/setup-flyway@v1
+
+      - name: Run Flyway migration - Beta
+        run: |
+          flyway \
+            -url="${{ secrets.FLYWAY_URL }}" \
+            -user="${{ secrets.FLYWAY_USER }}" \
+            -password="${{ secrets.FLYWAY_PASSWORD }}" \
+            -locations="filesystem:sql/migrations" \
+            migrate
+
+
+  # =========================
+  # PRODUCTION
+  # =========================
+  prod:
+    needs: beta
+    runs-on: ubuntu-latest
+
+    environment: prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flyway
+        uses: red-gate/setup-flyway@v1
+
+      - name: Run Flyway migration - Production
+        run: |
+          flyway \
+            -url="${{ secrets.FLYWAY_URL }}" \
+            -user="${{ secrets.FLYWAY_USER }}" \
+            -password="${{ secrets.FLYWAY_PASSWORD }}" \
+            -locations="filesystem:sql/migrations" \
+            migrate
